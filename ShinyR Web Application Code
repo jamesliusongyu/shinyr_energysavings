@@ -1,0 +1,371 @@
+library(shiny)
+library(shinythemes)
+require(ggpubr)
+library(corrplot)
+library(Hmisc)
+
+options(shiny.sanitize.errors = FALSE)
+attach("hiii.Rdata")
+options(shiny.error=browser)
+
+co2function<- function(input,output,session, fitt,train,nameofgraph,noofdays){
+  a<-predict(fitt, n.ahead=as.integer(noofdays()))
+  ts.plot(train, 2.718^a$pred,log="y", lty=c(1,3),xlab="Time in months",ylab="Avg amount of carbon dioxide", main=nameofgraph) 
+}
+
+lightfunction<- function(input,output,session, fitt,train,nameofgraph,noofdays){
+  b<-predict(fitt, n.ahead=as.integer(noofdays()))
+  ts.plot(train, 2.718^b$pred,log="y", lty=c(1,3),xlab="Time in months",ylab="Avg amount of light", main=nameofgraph) 
+}
+
+humidfunction<- function(input,output,session, fitt,train,nameofgraph,noofdays){
+  b<-predict(fitt, n.ahead=as.integer(noofdays()))
+  ts.plot(train, 2.718^b$pred,log="y", lty=c(1,3),xlab="Time in months",ylab="Avg amount of humidity", main=nameofgraph) 
+}
+
+tempfunction<- function(input,output,session, fitt,train,nameofgraph,noofdays){
+  b<-predict(fitt, n.ahead=as.integer(noofdays()))
+  ts.plot(train, 2.718^b$pred,log="y", lty=c(1,3),xlab="Time in months",ylab="Avg temperature", main=nameofgraph) 
+}
+
+noisefunction<- function(input,output,session, fitt,train,nameofgraph,noofdays){
+  b<-predict(fitt, n.ahead=as.integer(noofdays()))
+  ts.plot(train, 2.718^b$pred,log="y", lty=c(1,3),xlab="Time in months",ylab="Avg amount of noise", main=nameofgraph) 
+}
+
+vocfunction<- function(input,output,session, fitt,train,nameofgraph,noofdays){
+  b<-predict(fitt, n.ahead=as.integer(noofdays()))
+  ts.plot(train, 2.718^b$pred,log="y", lty=c(1,3),xlab="Time in months",ylab="Avg amount of VOC", main=nameofgraph) 
+}
+
+
+ui <- shinyUI(fluidPage(theme = shinytheme("cerulean"),
+   navbarPage("Research",
+              tabPanel("CO2",
+   plotOutput("plotss00002"),
+   plotOutput("plotss0010"),
+   plotOutput("plotss0018"),
+   plotOutput("plotss0014"),
+   plotOutput("plotss0023"),
+   plotOutput("plotss0025"),
+   plotOutput("plotss0021"),
+   plotOutput("plotss0015"),
+   plotOutput("plotss0012"),
+   plotOutput("plotss0008"),
+   
+   sliderInput("sliderco2","Number of days to predict",min=1,max=60,value=0)
+   
+),
+tabPanel("Lighting",
+         plotOutput("lightss0002"),
+         plotOutput("lightss0010"),
+         plotOutput("lightss0018"),
+         plotOutput("lightss0014"),
+         plotOutput("lightss0023"),
+         plotOutput("lightss0025"),
+         plotOutput("lightss0015"),
+         plotOutput("lightss0012"),
+         plotOutput("lightss0008"),
+         sliderInput("sliderlighting","Number of days to predict",min=1,max=60,value=0)
+  
+),
+tabPanel("Humidity",
+         plotOutput("humidityss0002"),
+         plotOutput("humidityss0010"),
+         plotOutput("humidityss0018"),
+         plotOutput("humidityss0014"),
+         plotOutput("humidityss0023"),
+         plotOutput("humidityss0025"),
+         plotOutput("humidityss0015"),
+         plotOutput("humidityss0012"),
+         plotOutput("humidityss0008"),
+         sliderInput("sliderhumidity","Number of days to predict",min=1,max=60,value=0)
+),
+tabPanel("Temperature",
+         plotOutput("tempss0002"),
+         plotOutput("tempss0010"),
+         plotOutput("tempss0018"),
+         plotOutput("tempss0014"),
+         plotOutput("tempss0023"),
+         plotOutput("tempss0025"),
+         plotOutput("tempss0015"),
+         plotOutput("tempss0012"),
+         plotOutput("tempss0008"),
+         sliderInput("slidertemp","Number of days to predict",min=1,max=60,value=0)
+),
+tabPanel("Noise",
+         plotOutput("noisess0002"),
+         plotOutput("noisess0010"),
+         plotOutput("noisess0018"),
+         plotOutput("noisess0014"),
+         plotOutput("noisess0023"),
+         plotOutput("noisess0025"),
+         plotOutput("noisess0015"),
+         plotOutput("noisess0012"),
+         plotOutput("noisess0008"),
+         sliderInput("slidernoise","Number of days to predict",min=1,max=60,value=0)
+),
+tabPanel("Volatile Organic Compounds",
+         plotOutput("vocss0002"),
+         plotOutput("vocss0010"),
+         plotOutput("vocss0018"),
+         plotOutput("vocss0014"),
+         plotOutput("vocss0023"),
+         plotOutput("vocss0025"),
+         plotOutput("vocss0015"),
+         plotOutput("vocss0012"),
+         plotOutput("vocss0008"),
+         sliderInput("slidervoc","Number of days to predict",min=1,max=60,value=0)
+),
+tabPanel("Correlation",
+         selectInput(inputId = "corr",label = "Sensors", choices = c("SS0008","SS0010","SS0012","SS0014","SS0018","SS0023","SS0025")),
+                     
+                     plotOutput("SS00cor")))))
+
+
+
+
+
+server <- shinyServer(function(input, output) {
+  
+  
+  asd<-reactive(
+    input$sliderco2)
+  
+  #ss0002
+  output$plotss00002<-renderPlot({
+    co2function(fitt=fitss00002co2, train=ss00002co2.train, nameofgraph = "SS0002",noofdays=asd)
+  })  
+  #ss0010
+  output$plotss0010<-renderPlot({
+    co2function(fitt=fitss0010co2, train=ss0010co2.train, nameofgraph = "SS0010",noofdays=asd)
+  }) 
+  #ss0018
+  output$plotss0018<-renderPlot({
+    co2function(fitt=fitss0018co2, train=ss0018co2.train, nameofgraph = "SS0018",noofdays=asd)
+  }) 
+  #ss0014
+  output$plotss0014<-renderPlot({
+    co2function(fitt=fitss0014co2, train=ss0014co2.train, nameofgraph = "SS0014",noofdays=asd)
+  }) 
+  #ss0023
+  output$plotss0023<-renderPlot({
+    co2function(fitt=fitss0023co2, train=ss0023co2.train, nameofgraph = "SS0023",noofdays=asd)
+  })  
+  #ss0025
+  output$plotss0025<-renderPlot({
+    co2function(fitt=fitss0025co2, train=ss0025co2.train, nameofgraph = "SS0025",noofdays=asd)
+  })  
+  #ss0021
+  output$plotss0021<-renderPlot({
+    co2function(fitt=fitss0021co2, train=ss0021co2.train, nameofgraph = "SS0021",noofdays=asd)
+  })  
+  #ss0015
+  #cant retrieve from sql
+  #ss0012
+  output$plotss0012<-renderPlot({
+    co2function(fitt=fitss0012co2, train=ss0012co2.train, nameofgraph = "SS012",noofdays=asd)
+  })  
+
+  output$plotss0008<-renderPlot({
+    co2function(fitt=fitss0008co2, train=ss0008co2.train, nameofgraph = "SS0008",noofdays=asd)
+  })
+  #lighting
+  sdf<-reactive(input$sliderlighting)
+  
+  output$lightss0002<-renderPlot({
+    lightfunction(fitt=lightss00002, train=ss00002.train, nameofgraph = "SS0002",noofdays=sdf)
+  })  
+  output$lightss0010<-renderPlot({
+    lightfunction(fitt=lightss0010, train=ss0010.train, nameofgraph = "SS0010",noofdays=sdf)
+  }) 
+  output$lightss0018<-renderPlot({
+    lightfunction(fitt=lightss0018, train=ss0018.train, nameofgraph = "SS0018",noofdays=sdf)
+  }) 
+  output$lightss0014<-renderPlot({
+    lightfunction(fitt=lightss0014, train=ss0014.train, nameofgraph = "SS0014",noofdays=sdf)
+  }) 
+  output$lightss0023<-renderPlot({
+    lightfunction(fitt=lightss0023, train=ss0023.train, nameofgraph = "SS0023",noofdays=sdf)
+  }) 
+  output$lightss0025<-renderPlot({
+    lightfunction(fitt=lightss0025, train=ss0025.train, nameofgraph = "SS0025",noofdays=sdf)
+  }) 
+  output$lightss0021<-renderPlot({
+    lightfunction(fitt=lightss0021, train=ss0021.train, nameofgraph = "SS0021",noofdays=sdf)
+  })
+  
+  output$lightss0012<-renderPlot({
+    lightfunction(fitt=lightss0012, train=ss0012.train, nameofgraph = "SS0012",noofdays=sdf)
+  })
+  output$lightss0008<-renderPlot({
+    lightfunction(fitt=lightss0008, train=ss0008.train, nameofgraph = "SS0008",noofdays=sdf)
+  })
+  #humidity
+  ho<-reactive(input$sliderhumidity)
+  output$humidityss0002<-renderPlot({
+    humidfunction(fitt=humidss00002, train=ss00002humid.train, nameofgraph = "SS0002",noofdays=ho)
+  })  
+  output$humidityss0010<-renderPlot({
+    humidfunction(fitt=humidss0010, train=ss0010humid.train, nameofgraph = "SS0010",noofdays=ho)
+  }) 
+  output$humidityss0018<-renderPlot({
+    humidfunction(fitt=humidss0018, train=ss0018humid.train, nameofgraph = "SS0018",noofdays=ho)
+  }) 
+  output$humidityss0014<-renderPlot({
+    humidfunction(fitt=humidss0014, train=ss0014humid.train, nameofgraph = "SS0014",noofdays=ho)
+  }) 
+  output$humidityss0023<-renderPlot({
+    humidfunction(fitt=humidss0023, train=ss0023humid.train, nameofgraph = "SS0023",noofdays=ho)
+  }) 
+  output$humidityss0025<-renderPlot({
+    humidfunction(fitt=humidss0025, train=ss0025humid.train, nameofgraph = "SS0025",noofdays=ho)
+  }) 
+  output$humidityss0021<-renderPlot({
+    humidfunction(fitt=humidss0021, train=ss0021humid.train, nameofgraph = "SS0021",noofdays=ho)
+  })
+  
+  output$humidityss0012<-renderPlot({
+    humidfunction(fitt=humidss0012, train=ss0012humid.train, nameofgraph = "SS0012",noofdays=ho)
+  })
+  output$humidityss0008<-renderPlot({
+    humidfunction(fitt=humidss0008, train=ss0008humid.train, nameofgraph = "SS0008",noofdays=ho)
+  })
+  
+  #temperature
+  herd<-reactive(input$slidertemp)
+  output$tempss0002<-renderPlot({
+    tempfunction(fitt=tempss00002, train=ss00002temp.train, nameofgraph = "SS0002",noofdays=herd)
+  })  
+  output$tempss0010<-renderPlot({
+    tempfunction(fitt=tempss0010, train=ss0010temp.train, nameofgraph = "SS0010",noofdays=herd)
+  }) 
+  output$tempss0018<-renderPlot({
+    tempfunction(fitt=tempss0018, train=ss0018temp.train, nameofgraph = "SS0018",noofdays=herd)
+  }) 
+  output$tempss0014<-renderPlot({
+    tempfunction(fitt=tempss0014, train=ss0014temp.train, nameofgraph = "SS0014",noofdays=herd)
+  }) 
+  output$tempss0023<-renderPlot({
+    tempfunction(fitt=tempss0023, train=ss0023temp.train, nameofgraph = "SS0023",noofdays=herd)
+  }) 
+  output$tempss0025<-renderPlot({
+    tempfunction(fitt=tempss0025, train=ss0025temp.train, nameofgraph = "SS0025",noofdays=herd)
+  }) 
+  output$tempss0021<-renderPlot({
+    tempfunction(fitt=tempss0021, train=ss0021temp.train, nameofgraph = "SS0021",noofdays=herd)
+  })
+  
+  output$tempss0012<-renderPlot({
+    tempfunction(fitt=tempss0012, train=ss0012temp.train, nameofgraph = "SS0012",noofdays=herd)
+  })
+  output$tempss0008<-renderPlot({
+    tempfunction(fitt=tempss0008, train=ss0008temp.train, nameofgraph = "SS0008",noofdays=herd)
+  })
+  
+  #noise
+  nn<-reactive(input$slidernoise)
+  output$noisess0002<-renderPlot({
+    noisefunction(fitt=noisess00002, train=ss00002noise.train, nameofgraph = "SS0002",noofdays=nn)
+  })  
+  output$noisess0010<-renderPlot({
+    noisefunction(fitt=noisess0010, train=ss0010noise.train, nameofgraph = "SS0010",noofdays=nn)
+  }) 
+  output$noisess0018<-renderPlot({
+    noisefunction(fitt=noisess0018, train=ss0018noise.train, nameofgraph = "SS0018",noofdays=nn)
+  }) 
+  output$noisess0014<-renderPlot({
+    noisefunction(fitt=noisess0014, train=ss0014noise.train, nameofgraph = "SS0014",noofdays=nn)
+  }) 
+  output$noisess0023<-renderPlot({
+    noisefunction(fitt=noisess0023, train=ss0023noise.train, nameofgraph = "SS0023",noofdays=nn)
+  }) 
+  output$noisess0025<-renderPlot({
+    noisefunction(fitt=noisess0025, train=ss0025noise.train, nameofgraph = "SS0025",noofdays=nn)
+  }) 
+  output$noisess0021<-renderPlot({
+    noisefunction(fitt=noisess0021, train=ss0021noise.train, nameofgraph = "SS0021",noofdays=nn)
+  })
+  
+  output$noisess0012<-renderPlot({
+    noisefunction(fitt=noisess0012, train=ss0012noise.train, nameofgraph = "SS0012",noofdays=nn)
+  })
+  output$noisess0008<-renderPlot({
+    noisefunction(fitt=noisess0008, train=ss0008noise.train, nameofgraph = "SS0008",noofdays=nn)
+  })
+  
+  #voc
+  vv<-reactive(input$slidervoc)
+  output$vocss0002<-renderPlot({
+    vocfunction(fitt=vocss00002, train=ss00002voc.train, nameofgraph = "SS0002",noofdays=vv)
+  })  
+  output$vocss0010<-renderPlot({
+    vocfunction(fitt=vocss0010, train=ss0010voc.train, nameofgraph = "SS0010",noofdays=vv)
+  }) 
+  output$vocss0018<-renderPlot({
+    vocfunction(fitt=vocss0018, train=ss0018voc.train, nameofgraph = "SS0018",noofdays=vv)
+  }) 
+  output$vocss0014<-renderPlot({
+    vocfunction(fitt=vocss0014, train=ss0014voc.train, nameofgraph = "SS0014",noofdays=vv)
+  }) 
+  output$vocss0023<-renderPlot({
+    vocfunction(fitt=vocss0023, train=ss0023voc.train, nameofgraph = "SS0023",noofdays=vv)
+  }) 
+  output$vocss0025<-renderPlot({
+    vocfunction(fitt=vocss0025, train=ss0025voc.train, nameofgraph = "SS0025",noofdays=vv)
+  }) 
+  output$vocss0021<-renderPlot({
+    vocfunction(fitt=vocss0021, train=ss0021voc.train, nameofgraph = "SS0021",noofdays=vv)
+  })
+  
+  output$vocss0012<-renderPlot({
+    vocfunction(fitt=vocss0012, train=ss0012voc.train, nameofgraph = "SS0012",noofdays=vv)
+  })
+  output$vocss0008<-renderPlot({
+    vocfunction(fitt=vocss0008, train=ss0008voc.train, nameofgraph = "SS0008",noofdays=vv)
+  })
+  
+  corrinput<-reactive(input$corr)
+  
+    output$SS00cor<-renderPlot({
+      
+    if(corrinput()=="SS0008"){
+      corrplot(ss0008cor_1,method = "number")
+  }
+  else if(corrinput()=="SS0010"){
+    
+    corrplot(ss0010cor_1,method = "number")
+  }
+  else if (corrinput()=="SS0012"){
+    
+    corrplot(ss0012cor_1,method = "number")
+  }
+  else if (corrinput()=="SS0014"){
+    
+    corrplot(ss0014cor_1,method = "number")
+  }
+  else if (corrinput()=="SS0018"){
+    
+    corrplot(ss0018cor_1,method = "number")
+  }
+  else if (corrinput()=="SS0021"){
+    
+    corrplot(ss0021cor_1,method = "number")
+  }
+  else if (corrinput()=="SS0023"){
+  
+    corrplot(ss0023cor_1,method = "number")
+  }
+  else{
+    
+    corrplot(ss0025cor_1,method = "number")
+  }
+    })
+  
+  
+  
+})
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
